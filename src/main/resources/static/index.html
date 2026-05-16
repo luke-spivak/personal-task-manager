@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Task Manager</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f7f7f3;
+            --surface: #ffffff;
+            --surface-muted: #f0f4f2;
+            --text: #1f2523;
+            --muted: #66736e;
+            --line: #d8dfdc;
+            --accent: #087f6f;
+            --accent-strong: #056254;
+            --warn: #9a4d12;
+            --danger: #a33b35;
+            --shadow: 0 14px 35px rgba(31, 37, 35, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-width: 320px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.45;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            min-height: 40px;
+            border: 0;
+            border-radius: 6px;
+            padding: 0 14px;
+            background: var(--accent);
+            color: #ffffff;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        button:hover {
+            background: var(--accent-strong);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        button.secondary {
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        button.secondary:hover {
+            background: var(--surface-muted);
+        }
+
+        .app {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 40px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 0 0 18px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 28px;
+            letter-spacing: 0;
+        }
+
+        h2 {
+            font-size: 18px;
+            letter-spacing: 0;
+        }
+
+        h3 {
+            font-size: 16px;
+            letter-spacing: 0;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 18px;
+            margin-top: 20px;
+            align-items: start;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .panel-body {
+            padding: 16px;
+        }
+
+        .stack {
+            display: grid;
+            gap: 16px;
+        }
+
+        form {
+            display: grid;
+            gap: 12px;
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            min-height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 9px 10px;
+            background: #ffffff;
+            color: var(--text);
+        }
+
+        textarea {
+            min-height: 92px;
+            resize: vertical;
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .status {
+            min-height: 22px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .status.error {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .status.success {
+            color: var(--accent-strong);
+            font-weight: 700;
+        }
+
+        .tasks {
+            display: grid;
+            gap: 10px;
+        }
+
+        .task {
+            display: grid;
+            gap: 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px;
+            background: #ffffff;
+        }
+
+        .task-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .task-title {
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .task-description {
+            color: var(--muted);
+            overflow-wrap: anywhere;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 26px;
+            border-radius: 999px;
+            padding: 2px 10px;
+            background: var(--surface-muted);
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .pill.high {
+            background: #ffe9e4;
+            color: #842d28;
+        }
+
+        .pill.medium {
+            background: #fff1cf;
+            color: var(--warn);
+        }
+
+        .pill.low {
+            background: #e6f4ef;
+            color: #11624d;
+        }
+
+        pre {
+            min-height: 112px;
+            overflow: auto;
+            margin: 0;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 12px;
+            background: #202522;
+            color: #f4f7f5;
+            font-size: 13px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .empty {
+            min-height: 112px;
+            display: grid;
+            place-items: center;
+            border: 1px dashed var(--line);
+            border-radius: 8px;
+            color: var(--muted);
+            text-align: center;
+            padding: 16px;
+        }
+
+        @media (max-width: 860px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            header,
+            .panel-header,
+            .task-top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .app {
+                width: min(100% - 20px, 1180px);
+                padding-top: 18px;
+            }
+
+            .grid-two {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .actions {
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="app">
+    <header>
+        <h1>Task Manager</h1>
+        <button id="refreshTasks" class="secondary" type="button">Refresh</button>
+    </header>
+
+    <div class="layout">
+        <section class="panel" aria-labelledby="taskListHeading">
+            <div class="panel-header">
+                <h2 id="taskListHeading">Tasks</h2>
+                <span id="taskCount" class="status">0 tasks</span>
+            </div>
+            <div class="panel-body">
+                <div id="tasks" class="tasks" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <div class="stack">
+            <section class="panel" aria-labelledby="createTaskHeading">
+                <div class="panel-header">
+                    <h2 id="createTaskHeading">Create Task</h2>
+                </div>
+                <div class="panel-body">
+                    <form id="createTaskForm">
+                        <label>
+                            Title
+                            <input id="title" name="title" autocomplete="off" maxlength="255" required>
+                        </label>
+                        <label>
+                            Description
+                            <textarea id="description" name="description" maxlength="1000"></textarea>
+                        </label>
+                        <div class="grid-two">
+                            <label>
+                                Due Date
+                                <input id="dueDate" name="dueDate" type="date">
+                            </label>
+                            <label>
+                                Priority
+                                <select id="priority" name="priority">
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="LOW">Low</option>
+                                    <option value="HIGH">High</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label>
+                            Status
+                            <select id="status" name="status">
+                                <option value="TODO">To do</option>
+                                <option value="IN_PROGRESS">In progress</option>
+                                <option value="DONE">Done</option>
+                            </select>
+                        </label>
+                        <div class="actions">
+                            <button type="submit">Create</button>
+                            <span id="createStatus" class="status" role="status"></span>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="suggestTaskHeading">
+                <div class="panel-header">
+                    <h2 id="suggestTaskHeading">AI Suggestion</h2>
+                </div>
+                <div class="panel-body stack">
+                    <form id="suggestTaskForm">
+                        <label>
+                            Description
+                            <textarea id="suggestionDescription" maxlength="2000" required></textarea>
+                        </label>
+                        <div class="actions">
+                            <button id="suggestButton" type="submit">Suggest</button>
+                            <button id="createSuggestionButton" class="secondary" type="button" disabled>Create Suggested Task</button>
+                        </div>
+                        <span id="suggestStatus" class="status" role="status"></span>
+                    </form>
+                    <pre id="suggestionOutput" aria-live="polite">{}</pre>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script>
+    const tasksEl = document.querySelector("#tasks");
+    const taskCountEl = document.querySelector("#taskCount");
+    const createStatusEl = document.querySelector("#createStatus");
+    const suggestStatusEl = document.querySelector("#suggestStatus");
+    const suggestionOutputEl = document.querySelector("#suggestionOutput");
+    const createSuggestionButton = document.querySelector("#createSuggestionButton");
+    let latestSuggestion = null;
+
+    document.querySelector("#refreshTasks").addEventListener("click", loadTasks);
+    document.querySelector("#createTaskForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await createTask(taskFromCreateForm());
+    });
+    document.querySelector("#suggestTaskForm").addEventListener("submit", suggestTask);
+    createSuggestionButton.addEventListener("click", async () => {
+        if (!latestSuggestion) {
+            return;
+        }
+        await createTask(latestSuggestion, { source: "suggestion" });
+    });
+
+    loadTasks();
+
+    async function loadTasks() {
+        setStatus(createStatusEl, "");
+        try {
+            const tasks = await requestJson("/tasks");
+            renderTasks(tasks);
+        } catch (error) {
+            renderTasks([]);
+            setStatus(createStatusEl, error.message, "error");
+        }
+    }
+
+    async function createTask(task, options = {}) {
+        const statusEl = options.source === "suggestion" ? suggestStatusEl : createStatusEl;
+        setStatus(statusEl, "");
+
+        try {
+            await requestJson("/tasks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cleanTaskPayload(task))
+            });
+
+            if (options.source === "suggestion") {
+                setStatus(statusEl, "Created", "success");
+            } else {
+                document.querySelector("#createTaskForm").reset();
+                document.querySelector("#priority").value = "MEDIUM";
+                document.querySelector("#status").value = "TODO";
+                setStatus(statusEl, "Created", "success");
+            }
+            await loadTasks();
+        } catch (error) {
+            setStatus(statusEl, error.message, "error");
+        }
+    }
+
+    async function suggestTask(event) {
+        event.preventDefault();
+        latestSuggestion = null;
+        createSuggestionButton.disabled = true;
+        suggestionOutputEl.textContent = "{}";
+        setStatus(suggestStatusEl, "");
+
+        const description = document.querySelector("#suggestionDescription").value.trim();
+        try {
+            const suggestion = await requestJson("/tasks/suggest", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description })
+            });
+
+            latestSuggestion = cleanTaskPayload(suggestion);
+            suggestionOutputEl.textContent = JSON.stringify(latestSuggestion, null, 2);
+            createSuggestionButton.disabled = false;
+            setStatus(suggestStatusEl, "Ready", "success");
+        } catch (error) {
+            setStatus(suggestStatusEl, error.message, "error");
+        }
+    }
+
+    function taskFromCreateForm() {
+        return {
+            title: document.querySelector("#title").value.trim(),
+            description: document.querySelector("#description").value.trim(),
+            dueDate: document.querySelector("#dueDate").value,
+            priority: document.querySelector("#priority").value,
+            status: document.querySelector("#status").value
+        };
+    }
+
+    function cleanTaskPayload(task) {
+        return {
+            title: task.title || "",
+            description: task.description || null,
+            dueDate: task.dueDate || null,
+            priority: task.priority || "MEDIUM",
+            status: task.status || "TODO"
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        const response = await fetch(url, options);
+        if (response.status === 204) {
+            return null;
+        }
+
+        const text = await response.text();
+        const body = text ? JSON.parse(text) : null;
+        if (!response.ok) {
+            throw new Error(body?.message || `Request failed with status ${response.status}`);
+        }
+        return body;
+    }
+
+    function renderTasks(tasks) {
+        taskCountEl.textContent = `${tasks.length} ${tasks.length === 1 ? "task" : "tasks"}`;
+        if (tasks.length === 0) {
+            tasksEl.innerHTML = `<div class="empty">No tasks</div>`;
+            return;
+        }
+
+        tasksEl.replaceChildren(...tasks.map(renderTask));
+    }
+
+    function renderTask(task) {
+        const item = document.createElement("article");
+        item.className = "task";
+
+        const top = document.createElement("div");
+        top.className = "task-top";
+
+        const title = document.createElement("div");
+        title.className = "task-title";
+        title.textContent = task.title;
+
+        const id = document.createElement("span");
+        id.className = "pill";
+        id.textContent = `#${task.id}`;
+
+        top.append(title, id);
+
+        const description = document.createElement("p");
+        description.className = "task-description";
+        description.textContent = task.description || "";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.append(
+            pill(formatEnum(task.priority), task.priority?.toLowerCase()),
+            pill(formatEnum(task.status)),
+            pill(task.dueDate || "No due date")
+        );
+
+        item.append(top);
+        if (task.description) {
+            item.append(description);
+        }
+        item.append(meta);
+        return item;
+    }
+
+    function pill(text, extraClass = "") {
+        const element = document.createElement("span");
+        element.className = ["pill", extraClass].filter(Boolean).join(" ");
+        element.textContent = text;
+        return element;
+    }
+
+    function formatEnum(value) {
+        return String(value || "")
+            .toLowerCase()
+            .split("_")
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(" ");
+    }
+
+    function setStatus(element, message, kind = "") {
+        element.textContent = message;
+        element.className = ["status", kind].filter(Boolean).join(" ");
+    }
+</script>
+</body>
+</html>
