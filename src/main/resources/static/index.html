@@ -70,6 +70,14 @@
             background: var(--surface-muted);
         }
 
+        button.danger {
+            background: var(--danger);
+        }
+
+        button.danger:hover {
+            background: #842d28;
+        }
+
         .app {
             width: min(1180px, calc(100% - 32px));
             margin: 0 auto;
@@ -224,6 +232,12 @@
             overflow-wrap: anywhere;
         }
 
+        .task-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .task-description {
             color: var(--muted);
             overflow-wrap: anywhere;
@@ -299,6 +313,11 @@
                 align-items: flex-start;
                 flex-direction: column;
             }
+
+            .task-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
 
         @media (max-width: 560px) {
@@ -313,6 +332,11 @@
 
             button {
                 width: 100%;
+            }
+
+            .task-actions {
+                align-items: stretch;
+                flex-direction: column;
             }
 
             .actions {
@@ -431,8 +455,10 @@
 
     loadTasks();
 
-    async function loadTasks() {
-        setStatus(createStatusEl, "");
+    async function loadTasks(options = {}) {
+        if (!options.preserveStatus) {
+            setStatus(createStatusEl, "");
+        }
         try {
             const tasks = await requestJson("/tasks");
             renderTasks(tasks);
@@ -464,6 +490,20 @@
             await loadTasks();
         } catch (error) {
             setStatus(statusEl, error.message, "error");
+        }
+    }
+
+    async function deleteTask(taskId, button) {
+        setStatus(createStatusEl, "");
+        button.disabled = true;
+
+        try {
+            await requestJson(`/tasks/${taskId}`, { method: "DELETE" });
+            setStatus(createStatusEl, "Deleted", "success");
+            await loadTasks({ preserveStatus: true });
+        } catch (error) {
+            button.disabled = false;
+            setStatus(createStatusEl, error.message, "error");
         }
     }
 
@@ -550,7 +590,18 @@
         id.className = "pill";
         id.textContent = `#${task.id}`;
 
-        top.append(title, id);
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "danger";
+        deleteButton.type = "button";
+        deleteButton.textContent = "Delete";
+        deleteButton.setAttribute("aria-label", `Delete task ${task.title}`);
+        deleteButton.addEventListener("click", () => deleteTask(task.id, deleteButton));
+
+        const actions = document.createElement("div");
+        actions.className = "task-actions";
+        actions.append(id, deleteButton);
+
+        top.append(title, actions);
 
         const description = document.createElement("p");
         description.className = "task-description";
