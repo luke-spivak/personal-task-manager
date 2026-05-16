@@ -143,6 +143,7 @@ export OPENAI_MODEL="gpt-5.4-mini"
 Timeouts are configured in `src/main/resources/application.properties`:
 
 ```properties
+ai.openai.max-output-tokens=1200
 ai.openai.connect-timeout=5s
 ai.openai.read-timeout=20s
 ```
