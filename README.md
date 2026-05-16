@@ -9,6 +9,29 @@ A small Java 17 Spring Boot REST API for managing personal tasks, with an H2 in-
 
 No external database or frontend build tools are required.
 
+## AI Configuration
+
+The AI integration uses OpenAI's Responses API through `OpenAiClient`.
+
+Set these environment variables before starting the app:
+
+```bash
+export OPENAI_API_KEY="your-api-key"
+export OPENAI_MODEL="gpt-5.4-mini"
+```
+
+`OPENAI_MODEL` is optional. The app defaults to `gpt-5.4-mini`.
+
+Timeouts and token limits are configured in `src/main/resources/application.properties`:
+
+```properties
+ai.openai.max-output-tokens=1200
+ai.openai.connect-timeout=5s
+ai.openai.read-timeout=20s
+```
+
+If `OPENAI_API_KEY` is not configured, `/tasks/suggest` returns `503 Service Unavailable` with a JSON error response. CRUD endpoints still work normally.
+
 ## Run Locally
 
 Start the API and UI with one command:
@@ -125,30 +148,6 @@ Example response:
   "status": "TODO"
 }
 ```
-
-### AI Configuration
-
-The AI integration uses OpenAI's Responses API through `OpenAiClient`.
-
-Set these environment variables before starting the app:
-
-```bash
-export OPENAI_API_KEY="your-api-key"
-export OPENAI_MODEL="gpt-5.4-mini"
-./mvnw spring-boot:run
-```
-
-`OPENAI_MODEL` is optional. The app defaults to `gpt-5.4-mini`.
-
-Timeouts are configured in `src/main/resources/application.properties`:
-
-```properties
-ai.openai.max-output-tokens=1200
-ai.openai.connect-timeout=5s
-ai.openai.read-timeout=20s
-```
-
-If `OPENAI_API_KEY` is not configured, `/tasks/suggest` returns `503 Service Unavailable` with a JSON error response. CRUD endpoints still work normally.
 
 ## H2 Database Notes
 
