@@ -7,6 +7,11 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
+/**
+ * Request body for creating a task.
+ *
+ * <p>Only {@code title} is required; missing priority/status are defaulted by {@code TaskService}.</p>
+ */
 public record TaskCreateRequest(
         @NotBlank(message = "title is required")
         @Size(max = 255, message = "title must be 255 characters or fewer")

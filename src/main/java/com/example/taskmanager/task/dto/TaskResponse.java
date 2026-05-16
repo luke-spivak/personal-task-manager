@@ -7,6 +7,9 @@ import com.example.taskmanager.task.TaskStatus;
 import java.time.Instant;
 import java.time.LocalDate;
 
+/**
+ * Public API representation of a persisted task.
+ */
 public record TaskResponse(
         Long id,
         String title,
@@ -18,6 +21,9 @@ public record TaskResponse(
         Instant updatedAt
 ) {
 
+    /**
+     * Maps the JPA entity to the API DTO so persistence details stay out of controllers.
+     */
     public static TaskResponse from(Task task) {
         return new TaskResponse(
                 task.getId(),

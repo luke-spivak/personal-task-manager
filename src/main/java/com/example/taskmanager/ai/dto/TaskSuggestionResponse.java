@@ -5,6 +5,11 @@ import com.example.taskmanager.task.TaskStatus;
 
 import java.time.LocalDate;
 
+/**
+ * Structured task suggestion returned by the AI endpoint.
+ *
+ * <p>This mirrors the create-task shape but is not persisted until the client submits it to the CRUD API.</p>
+ */
 public record TaskSuggestionResponse(
         String title,
         String description,

@@ -8,6 +8,12 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+/**
+ * Application service for turning natural-language input into a normalized task suggestion.
+ *
+ * <p>The {@link AiClient} is obtained lazily so the app can still start and serve CRUD endpoints when
+ * external AI configuration is missing or being tested.</p>
+ */
 @Service
 public class AiTaskSuggestionService {
 
@@ -17,6 +23,13 @@ public class AiTaskSuggestionService {
         this.aiClientProvider = aiClientProvider;
     }
 
+    /**
+     * Requests a task suggestion from the configured AI client and normalizes required task defaults.
+     *
+     * @param request validated natural-language suggestion request
+     * @return structured task suggestion with non-null priority/status
+     * @throws AiServiceUnavailableException when no client is configured or the provider response is unusable
+     */
     public TaskSuggestionResponse suggestTask(TaskSuggestionRequest request) {
         AiClient aiClient = aiClientProvider.getIfAvailable();
         if (aiClient == null) {

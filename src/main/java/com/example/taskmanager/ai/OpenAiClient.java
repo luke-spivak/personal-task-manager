@@ -23,6 +23,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * OpenAI-backed {@link AiClient} implementation for task suggestions.
+ *
+ * <p>This client uses the Responses API with strict structured output so the model returns JSON matching
+ * {@link TaskSuggestionResponse}. Network, provider, refusal, and parsing failures are intentionally mapped
+ * to {@link AiServiceUnavailableException} to avoid leaking provider internals through the REST API.</p>
+ */
 @Component
 public class OpenAiClient implements AiClient {
 
@@ -58,6 +65,13 @@ public class OpenAiClient implements AiClient {
                 .build();
     }
 
+    /**
+     * Calls OpenAI to transform natural-language task text into a structured suggestion.
+     *
+     * @param description plain-language task or reminder text
+     * @return model-generated task suggestion
+     * @throws AiServiceUnavailableException when configuration, network, provider, or parsing failures occur
+     */
     @Override
     public TaskSuggestionResponse suggestTask(String description) {
         if (!StringUtils.hasText(apiKey)) {
@@ -86,6 +100,9 @@ public class OpenAiClient implements AiClient {
         }
     }
 
+    /**
+     * Builds the Responses API request body, including strict JSON schema output.
+     */
     private Map<String, Object> requestBody(String description) {
         return Map.of(
                 "model", model,
@@ -143,6 +160,9 @@ public class OpenAiClient implements AiClient {
         );
     }
 
+    /**
+     * Extracts the model's JSON string from the Responses API envelope while detecting provider refusals.
+     */
     private String extractOutputText(String responseBody) throws JacksonException {
         JsonNode root = objectMapper.readTree(responseBody);
         String responseError = root.path("error").path("message").asString("");
@@ -168,6 +188,9 @@ public class OpenAiClient implements AiClient {
         return outputText;
     }
 
+    /**
+     * Creates a sanitized provider error message for API clients.
+     */
     private String openAiErrorMessage(ClientHttpResponse response) throws IOException {
         String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
         String providerMessage = extractProviderErrorMessage(body);

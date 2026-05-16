@@ -7,6 +7,11 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
+/**
+ * Request body for updating a task's editable fields.
+ *
+ * <p>Title remains required, while null priority/status mean "leave the current value unchanged".</p>
+ */
 public record TaskUpdateRequest(
         @NotBlank(message = "title is required")
         @Size(max = 255, message = "title must be 255 characters or fewer")

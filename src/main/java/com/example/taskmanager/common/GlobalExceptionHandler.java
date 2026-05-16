@@ -13,9 +13,17 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+/**
+ * Converts expected application and validation failures into consistent JSON responses.
+ *
+ * <p>Provider details and malformed request internals are deliberately collapsed into client-safe messages.</p>
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Maps missing domain resources to {@code 404 Not Found}.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(
             ResourceNotFoundException exception,
@@ -24,6 +32,9 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
+    /**
+     * Maps unavailable AI integration paths to {@code 503 Service Unavailable}.
+     */
     @ExceptionHandler(AiServiceUnavailableException.class)
     public ResponseEntity<ApiError> handleAiServiceUnavailable(
             AiServiceUnavailableException exception,
@@ -32,6 +43,9 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage(), request);
     }
 
+    /**
+     * Maps bean-validation failures into a readable {@code 400 Bad Request} message.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(
             MethodArgumentNotValidException exception,
@@ -46,6 +60,9 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, message, request);
     }
 
+    /**
+     * Maps malformed JSON, invalid enum values, and path type mismatches to {@code 400 Bad Request}.
+     */
     @ExceptionHandler({
             HttpMessageNotReadableException.class,
             MethodArgumentTypeMismatchException.class
